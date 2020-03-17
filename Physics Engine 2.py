@@ -4,7 +4,6 @@ import math
 
 def find_dx_dy(dx1, dy1, L):  # Should scale the dx and dy down to a cover a given "L" or length
 
-    # dx1 = 0
     try:
         dy2 = math.sqrt((L **2) / (dx1 ** 2 / dy1 ** 2 + 1))
         dx2 = dy2 * dx1 / dy1
@@ -27,10 +26,10 @@ def find_dx_dy(dx1, dy1, L):  # Should scale the dx and dy down to a cover a giv
 
 class Bullet:
     def __init__(self, x_idx, y_idx, w, h, grav, dx, dy, frame_cnt, block_w):
-        self.x_idx = x_idx
-        self.y_idx = y_idx
-        self.x_pos = x_idx * block_w
-        self.y_pos = y_idx * block_w
+        self.x_idx = x_idx  # Index on the screen grid
+        self.y_idx = y_idx  # Index on the screen grid
+        self.x_pos = x_idx * block_w  # Position on the screen (position not index)
+        self.y_pos = y_idx * block_w  # Position on the screen (position not index)
         self.w = w
         self.h = h
         self.grav = grav / frame_cnt # Acceleration variable (acceleration/sec converted into acceleration/frame)
@@ -40,28 +39,33 @@ class Bullet:
         self.dy = dy
         self.dead = False  # States whether the object is moving or not (Used to optimize and ignore updating position)
         self.block_w = block_w
-        self.bounce_mag = 0.35
-
+        self.bounce_mag = 0.35  # Interval of how much of the speed is going to be reflected by the wall
 
     def draw(self, screen):
         pygame.draw.rect(screen, (0,0,0), (self.x_pos - self.w/2, self.y_pos - self.h/2, self.w, self.h))
 
-    def update(self, screen, grid):
+    def update(self, grid):
         if self.dead: return  # Object is dead a.k.a not moving and therefore no movement checks are needed
 
+        # Basically gr11 physics
+        # Velocity will be adjusted "x" amount every second by gravity / x
         self.dy += self.ay
         self.dx += self.ax
+
+        # Collision Detection
         self.collision_detect(grid)
 
     def collision_detect(self, grid):
 
         # NOTE THAT PREV AND NEW X ARE INDEXES ON THE GRID AND NOT THE COORDINATES OF VARIABLES X AND Y
-        new_x = int((self.x_pos + self.dx) // self.block_w)
+        # Index of the new position
+        new_x = int((self.x_pos + self.dx) // self.block_w) 
         new_y = int((self.y_pos + self.dy) // self.block_w)
+        # Index of the old/current position
         prev_x = int(self.x_pos // self.block_w)
         prev_y = int(self.y_pos // self.block_w)
 
-        x_flag, y_flag = True, True
+        x_flag, y_flag = True, True  # Keeps track if the object has hit a wall (True for no collision)
 
         if grid[prev_y][new_x]:
             # Collision with wall (x component)
@@ -72,13 +76,14 @@ class Bullet:
                 x_flag = False
                 self.x_pos = prev_x * self.block_w
 
-            self.dx = -1 * self.dx * self.bounce_mag
+            self.dx = -1 * self.dx * self.bounce_mag  # Bounce back
 
         if grid[new_y][prev_x]:
             # Collision with wall (y component)
             if new_y > prev_y:
                 y_flag = False
 
+                # Add friction on floor surfaces of walls (Only the top of them using this)
                 if self.dx > 0:
                     self.dx -= 0.09
                 elif self.dx < 0:
@@ -100,8 +105,9 @@ class Bullet:
                 y_flag = False
                 self.y_pos = prev_y * self.block_w
 
-            self.dy = -1 * self.dy * self.bounce_mag
+            self.dy = -1 * self.dy * self.bounce_mag  # Bounce back
 
+        # If the object has not hit a wall, we simply adjust the position
         if x_flag: self.x_pos += self.dx
         if y_flag: self.y_pos += self.dy
 
@@ -128,7 +134,6 @@ class Window():
                     pygame.draw.rect(self.screen, (150, 150, 150), (x_pos, y_pos, self.block_w, self.block_w))
                 x_pos += self.block_w
             y_pos += self.block_w
-
 
 
 class Player:
@@ -159,7 +164,7 @@ p = Player(2, 2, 11, 11, screen.block_w)
 
 while True:
     screen.draw()
-    p.draw(screen.screen)
+    p.draw(screen.screen)  # Draw player
 
     # Check inputs
     for event in pygame.event.get():
@@ -173,13 +178,14 @@ while True:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
+                # Adjust player position
                 mx, my = pygame.mouse.get_pos()
                 p.x_idx = mx / screen.block_w
                 p.y_idx = my / screen.block_w
 
-
+    # Update objects/bullets
     for bullet in bullets:
-        bullet.update(screen, screen.grid)
+        bullet.update(screen.grid)
         bullet.draw(screen.screen)
 
     pygame.display.update()
