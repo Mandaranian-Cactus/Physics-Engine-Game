@@ -31,7 +31,7 @@ class Window():
     def __init__(self, grid, block_w):
         self.grid = grid
         self.block_w = block_w
-        self.w = len(grid[0] * block_w)
+        self.w = len(grid[0]) * block_w
         self.h = len(grid) * block_w
         self.width = len(grid[0]) * block_w
         self.height = len(grid) * block_w
@@ -168,8 +168,9 @@ class Player:
             self.stick = True
 
         # If the object has not hit a wall, we simply adjust the position
-        if x_flag: self.x_pos += self.dx
-        if y_flag: self.y_pos += self.dy
+        if x_flag and y_flag: 
+            self.x_pos += self.dx
+            self.y_pos += self.dy
 
 
 def find_angle(dx, dy):  # Converts a dx and dy input into an angle
