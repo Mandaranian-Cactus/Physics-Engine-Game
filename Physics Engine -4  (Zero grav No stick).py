@@ -30,7 +30,7 @@ class Window():
     def __init__(self, grid, block_w):
         self.grid = grid
         self.block_w = block_w
-        self.w = len(grid[0] * block_w)
+        self.w = len(grid[0]) * block_w
         self.h = len(grid) * block_w
         self.width = len(grid[0]) * block_w
         self.height = len(grid) * block_w
