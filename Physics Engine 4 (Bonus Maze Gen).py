@@ -46,7 +46,7 @@ class Window():
             for x in range(len(self.grid[0])):
                 sqr = self.grid[y][x]
                 if sqr:
-                    pygame.draw.rect(self.screen, (150, 150, 150), (x_pos, y_pos, self.block_w, self.block_w))
+                    pygame.draw.rect(self.screen, (100, 100, 100), (x_pos, y_pos, self.block_w, self.block_w))
                 x_pos += self.block_w
             y_pos += self.block_w
 
@@ -88,7 +88,7 @@ class Player:
 
         dist = math.sqrt(dx ** 2 + dy ** 2)
         strength_mag = min(3, max(1, int(dist // 75)))
-        self.bullet_power = strength_mag * 2  # Integer is scalable to increase speed of bullet
+        self.bullet_power = strength_mag  # Integer is scalable to increase speed of bullet
 
         m, y_int = line_formula(dx, dy, 0, 0)
         if [m, y_int] == ["On", "Point"]:  # Handles case where player's position have just recently been altered
@@ -265,13 +265,14 @@ while True:
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mx, my = pygame.mouse.get_pos()
-            dx, dy = mx - p.x_pos, my - p.y_pos
-            dx, dy = find_dx_dy(dx, dy, p.bullet_power)  # Adjust the integer to adjust magnitude of shot
+            if p.stick:
+                mx, my = pygame.mouse.get_pos()
+                dx, dy = mx - p.x_pos, my - p.y_pos
+                dx, dy = find_dx_dy(dx, dy, p.bullet_power)  # Adjust the integer to adjust magnitude of shot
 
-            p.dx = dx
-            p.dy = dy
-            p.stick = False
+                p.dx = dx
+                p.dy = dy
+                p.stick = False
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:

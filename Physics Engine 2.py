@@ -39,7 +39,7 @@ class Bullet:
         self.dy = dy
         self.dead = False  # States whether the object is moving or not (Used to optimize and ignore updating position)
         self.block_w = block_w
-        self.bounce_mag = 0.35  # Interval of how much of the speed is going to be reflected by the wall
+        self.bounce_mag = 0.5  # Interval of how much of the speed is going to be reflected by the wall
 
     def draw(self, screen):
         pygame.draw.rect(screen, (0,0,0), (self.x_pos - self.w/2, self.y_pos - self.h/2, self.w, self.h))
@@ -59,7 +59,7 @@ class Bullet:
 
         # NOTE THAT PREV AND NEW X ARE INDEXES ON THE GRID AND NOT THE COORDINATES OF VARIABLES X AND Y
         # Index of the new position
-        new_x = int((self.x_pos + self.dx) // self.block_w) 
+        new_x = int((self.x_pos + self.dx) // self.block_w)
         new_y = int((self.y_pos + self.dy) // self.block_w)
         # Index of the old/current position
         prev_x = int(self.x_pos // self.block_w)
